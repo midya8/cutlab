@@ -51,6 +51,11 @@ test('actual Chrome full cut, flow, local-search and residual-family witnesses',
    assert.deepEqual(await js('Array.from(document.querySelectorAll("#assignments-table tr.selected"),e=>Number(e.dataset.mask))'),[row.mask]);
   }
  }
+ // Legal small input fractions can produce very long exact derived fractions.
+ const longInput={unary:Array.from({length:6},(_,i)=>['0',`-1/${[9973,9967,9949,9941,9931,9929][i]}`]),pairs:[]};let d=0;for(let i=0;i<6;i++)for(let j=i+1;j<6;j++)longInput.pairs.push({i,j,values:['0',`1/${[9973,9967,9949,9941,9931,9929,9923,9919,9907,9901,9887,9883,9871,9859,9857][d++]}`,'1/9839','0']});
+ await set('input',JSON.stringify(longInput),'input');await js('document.getElementById("run").click()');assert.equal(await js('window.currentReport.status'),'solved');
+ assert.ok(await js('Array.from(document.querySelectorAll("#network g[data-edge] text"),e=>e.textContent).every(t=>t.length<=24)'),'compact decorative labels');
+ assert.ok(await js('Array.from(document.querySelectorAll("#network g[data-edge] title"),e=>e.textContent).some(t=>t.length>30)'),'full exact tooltip retained');
  await set('input','{}','input');assert.equal(await js('window.currentReport'),null);assert.equal(await js('document.getElementById("results").hidden'),true);assert.equal(await js('document.getElementById("export").disabled'),true);await js('document.getElementById("run").click()');assert.match(await js('document.getElementById("state").textContent'),/^Invalid input:/);
  await set('preset',23);await js('HTMLAnchorElement.prototype.click=function(){window.downloaded={name:this.download,url:this.href}};URL.revokeObjectURL=function(){}');await js('document.getElementById("export").click()');assert.deepEqual(await js('fetch(downloaded.url).then(r=>r.json())'),fixtures[23].report);assert.equal(await js('downloaded.name'),'cutlab-witness.json');
  for(const width of [320,390,1280]){await call('Emulation.setDeviceMetricsOverride',{width,height:1000,deviceScaleFactor:1,mobile:width<700});await js('new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))');assert.ok(await js('document.documentElement.scrollWidth<=innerWidth'),'overflow '+width);}
