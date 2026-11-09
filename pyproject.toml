@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+[project]
+name = "cutlab"
+version = "0.1.0"
+description = "Exact small binary graph-cut energy witnesses"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+[project.scripts]
+cutlab = "cutlab.cli:main"
+[tool.setuptools.packages.find]
+include = ["cutlab*"]
