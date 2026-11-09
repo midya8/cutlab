@@ -12,15 +12,15 @@ function graph(){if(!current||current.status!=='solved')return;const n=current.i
  // Place readable labels without covering variable nodes or other edge labels.
  // Geometry is decorative; exact capacities and flow remain in the full table.
  const occupied=[],nodes=Array.from({length:N},(_,i)=>pos(i));
- const offsets=[];for(let dy=-150;dy<=150;dy+=15)for(let dx=-180;dx<=180;dx+=15)offsets.push([dx,dy]);offsets.sort((a,b)=>(a[0]**2+a[1]**2)-(b[0]**2+b[1]**2)||a[1]-b[1]||a[0]-b[0]);
- function labelPosition(e){const a=pos(e.u),b=pos(e.v),mx=(a[0]+b[0])/2,my=(a[1]+b[1])/2-6,label=`${e.flow} / ${e.capacity}`,half=label.length*3.65+4;
+ const offsets=[];for(let dy=-480;dy<=480;dy+=15)for(let dx=-760;dx<=760;dx+=15)offsets.push([dx,dy]);offsets.sort((a,b)=>(a[0]**2+a[1]**2)-(b[0]**2+b[1]**2)||a[1]-b[1]||a[0]-b[0]);
+ function labelPosition(e){const a=pos(e.u),b=pos(e.v),mx=(a[0]+b[0])/2,my=(a[1]+b[1])/2-6,full=`${e.flow} / ${e.capacity}`,label=full.length<=24?full:`edge ${e.u}→${e.v}`,half=label.length*3.65+4;
   for(const [dx,dy] of offsets){const x=mx+dx,y=my+dy,r={left:x-half,right:x+half,top:y-13,bottom:y+5};if(r.left<6||r.right>754||r.top<5||r.bottom>475)continue;
    if(nodes.some(([nx,ny])=>r.left<nx+29&&r.right>nx-29&&r.top<ny+29&&r.bottom>ny-29))continue;
    if(occupied.some(q=>r.left<q.right+5&&r.right>q.left-5&&r.top<q.bottom+5&&r.bottom>q.top-5))continue;
    occupied.push(r);return {x,y,label};
   }throw Error('No readable edge-label position within the bounded graph');
  }
- for(const e of flows){const [x1,y1]=pos(e.u),[x2,y2]=pos(e.v),dx=x2-x1,dy=y2-y1,len=Math.hypot(dx,dy),cross=source(e.u)&&!source(e.v),lp=labelPosition(e);const g=make('g',{'data-edge':`${e.u},${e.v}`});g.append(make('line',{x1:x1+dx*23/len,y1:y1+dy*23/len,x2:x2-dx*27/len,y2:y2-dy*27/len,stroke:cross?'#b94e20':'#938497','stroke-width':cross?3:1.5,'marker-end':'url(#arrow)'}));if(Math.abs(lp.x-(x1+x2)/2)>1||Math.abs(lp.y-((y1+y2)/2-6))>1)g.append(make('line',{x1:(x1+x2)/2,y1:(y1+y2)/2,x2:lp.x,y2:lp.y-5,stroke:'#938497','stroke-width':0.7,'stroke-dasharray':'2 3'}));g.append(make('text',{x:lp.x,y:lp.y,'text-anchor':'middle',fill:'#292033','font-family':'monospace','font-size':12,'paint-order':'stroke',stroke:'#e9e4e6','stroke-width':4},lp.label));svg.append(g);}
+ for(const e of flows){const [x1,y1]=pos(e.u),[x2,y2]=pos(e.v),dx=x2-x1,dy=y2-y1,len=Math.hypot(dx,dy),cross=source(e.u)&&!source(e.v),lp=labelPosition(e);const g=make('g',{'data-edge':`${e.u},${e.v}`});g.append(make('title',{},`${e.u}→${e.v}: ${e.flow} / ${e.capacity}`));g.append(make('line',{x1:x1+dx*23/len,y1:y1+dy*23/len,x2:x2-dx*27/len,y2:y2-dy*27/len,stroke:cross?'#b94e20':'#938497','stroke-width':cross?3:1.5,'marker-end':'url(#arrow)'}));if(Math.abs(lp.x-(x1+x2)/2)>1||Math.abs(lp.y-((y1+y2)/2-6))>1)g.append(make('line',{x1:(x1+x2)/2,y1:(y1+y2)/2,x2:lp.x,y2:lp.y-5,stroke:'#938497','stroke-width':0.7,'stroke-dasharray':'2 3'}));g.append(make('text',{x:lp.x,y:lp.y,'text-anchor':'middle',fill:'#292033','font-family':'monospace','font-size':12,'paint-order':'stroke',stroke:'#e9e4e6','stroke-width':4},lp.label));svg.append(g);}
  for(let i=0;i<N;i++){const [x,y]=pos(i),g=make('g',{'data-node':i});g.append(make('circle',{cx:x,cy:y,r:23,fill:source(i)?'#8e3657':'#23696a'}));g.append(make('text',{x,y:y+5,'text-anchor':'middle',fill:'#fff','font-family':'monospace','font-size':14},nodeName(i,n)));svg.append(g);}
 }
 function selectedPair(){pretty('pair-json',current.pair_reductions[Number($('pair').value)]??{message:'No pair terms.'});}
