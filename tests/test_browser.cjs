@@ -41,6 +41,8 @@ test('actual Chrome full cut, flow, local-search and residual-family witnesses',
    const pos=i=>i===n?[35,240]:i===n+1?[725,240]:[120+(n===1?240:i*500/(n-1)),i%2===0?155:325];
    const source=i=>i===n||i<n&&((selectedMask>>i)&1)===0;
    const expected=f.map(e=>{const [x1,y1]=pos(e.u),[x2,y2]=pos(e.v),dx=x2-x1,dy=y2-y1,len=Math.hypot(dx,dy);return {edge:`${e.u},${e.v}`,x1:x1+dx*23/len,y1:y1+dy*23/len,x2:x2-dx*27/len,y2:y2-dy*27/len,color:source(e.u)&&!source(e.v)?'#b94e20':'#938497',label:`${e.flow} / ${e.capacity}`};});
+   const boxes=await js(`(()=>{const labels=Array.from(document.querySelectorAll('#network g[data-edge] text'),e=>{const r=e.getBBox();return {x:r.x,y:r.y,w:r.width,h:r.height}}),nodes=Array.from(document.querySelectorAll('#network g[data-node] circle'),e=>({x:Number(e.getAttribute('cx')),y:Number(e.getAttribute('cy')),r:Number(e.getAttribute('r'))}));return {labels,nodes}})()`);
+   for(let i=0;i<boxes.labels.length;i++){const a=boxes.labels[i];assert.ok(a.x>=0&&a.x+a.w<=760&&a.y>=0&&a.y+a.h<=480,'label inside graph');for(const b of boxes.labels.slice(i+1))assert.ok(a.x+a.w+2<=b.x||b.x+b.w+2<=a.x||a.y+a.h+2<=b.y||b.y+b.h+2<=a.y,'edge-label noncollision '+c+':'+k);for(const b of boxes.nodes)assert.ok(a.x+a.w+2<=b.x-b.r||a.x>=b.x+b.r+2||a.y+a.h+2<=b.y-b.r||a.y>=b.y+b.r+2,'edge label clear of node '+c+':'+k);}
    compare(await js('Array.from(document.querySelectorAll("#network g[data-edge]"),g=>({edge:g.dataset.edge,x1:Number(g.querySelector("line").getAttribute("x1")),y1:Number(g.querySelector("line").getAttribute("y1")),x2:Number(g.querySelector("line").getAttribute("x2")),y2:Number(g.querySelector("line").getAttribute("y2")),color:g.querySelector("line").getAttribute("stroke"),label:g.querySelector("text").textContent}))'),expected);graphEdges+=expected.length;
   }
   for(const row of r.assignments){
@@ -49,6 +51,11 @@ test('actual Chrome full cut, flow, local-search and residual-family witnesses',
    assert.deepEqual(await js('Array.from(document.querySelectorAll("#assignments-table tr.selected"),e=>Number(e.dataset.mask))'),[row.mask]);
   }
  }
+ // Legal small input fractions can produce very long exact derived fractions.
+ const longInput={unary:Array.from({length:6},(_,i)=>['0',`-1/${[9973,9967,9949,9941,9931,9929][i]}`]),pairs:[]};let d=0;for(let i=0;i<6;i++)for(let j=i+1;j<6;j++)longInput.pairs.push({i,j,values:['0',`1/${[9973,9967,9949,9941,9931,9929,9923,9919,9907,9901,9887,9883,9871,9859,9857][d++]}`,'1/9839','0']});
+ await set('input',JSON.stringify(longInput),'input');await js('document.getElementById("run").click()');assert.equal(await js('window.currentReport.status'),'solved');
+ assert.ok(await js('Array.from(document.querySelectorAll("#network g[data-edge] text"),e=>e.textContent).every(t=>t.length<=24)'),'compact decorative labels');
+ assert.ok(await js('Array.from(document.querySelectorAll("#network g[data-edge] title"),e=>e.textContent).some(t=>t.length>30)'),'full exact tooltip retained');
  await set('input','{}','input');assert.equal(await js('window.currentReport'),null);assert.equal(await js('document.getElementById("results").hidden'),true);assert.equal(await js('document.getElementById("export").disabled'),true);await js('document.getElementById("run").click()');assert.match(await js('document.getElementById("state").textContent'),/^Invalid input:/);
  await set('preset',23);await js('HTMLAnchorElement.prototype.click=function(){window.downloaded={name:this.download,url:this.href}};URL.revokeObjectURL=function(){}');await js('document.getElementById("export").click()');assert.deepEqual(await js('fetch(downloaded.url).then(r=>r.json())'),fixtures[23].report);assert.equal(await js('downloaded.name'),'cutlab-witness.json');
  for(const width of [320,390,1280]){await call('Emulation.setDeviceMetricsOverride',{width,height:1000,deviceScaleFactor:1,mobile:width<700});await js('new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))');assert.ok(await js('document.documentElement.scrollWidth<=innerWidth'),'overflow '+width);}
