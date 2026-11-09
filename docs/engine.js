@@ -23,8 +23,11 @@ export function validate(raw){
  });return JSON.parse(JSON.stringify(raw));
 }
 export function parseInput(text){if(text.length>32768)throw Error('input exceeds 32768 characters');return validate(JSON.parse(text));}
-export function audit(raw){
- const spec=validate(raw),n=spec.unary.length,N=n+2,s=n,t=n+1,U=spec.unary.map(row=>row.map(parse));
+export function audit(raw){return auditDerived(validate(raw));}
+// Internal path adapter: caller validates the base and every slope first.
+export function auditDerived(spec){
+ const parse=x=>{const [n,d]=x.split('/');return new Rat(BigInt(n),d===undefined?1n:BigInt(d));};
+ const n=spec.unary.length,N=n+2,s=n,t=n+1,U=spec.unary.map(row=>row.map(parse));
  const reds=spec.pairs.map((p,k)=>{const [a,b,c,d]=p.values.map(parse),u=c.sub(a),v=d.sub(c),w=b.add(c).sub(a).sub(d);return {pair:k,i:p.i,j:p.j,values:[a,b,c,d],constant:a,linear_i:u,linear_j:v,capacity:w,reconstructed:[a,a.add(v).add(w),a.add(u),a.add(u).add(v)]};});
  const violations=reds.filter(p=>p.capacity.cmp(Z())<0).map(p=>({pair:p.pair,slack:p.capacity}));
  const e=bits=>sum(U.map((row,i)=>row[bits[i]])).add(sum(spec.pairs.map(p=>parse(p.values[2*bits[p.i]+bits[p.j]]))));
