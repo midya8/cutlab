@@ -1,5 +1,9 @@
 # CutLab
 
+[Exact affine unary response path](https://midya8.github.io/cutlab/path.html) · [Path method and limits](PATH.md)
+
+The response inspector retains every closed optimal region, singleton breakpoint tie and open-cell family. Mixed signed slopes can make a label leave and return: the default exact masks are 7 → 0 → 1 at breakpoints 1/4 and 2. 18 complete paths / 90,732 native-BigInt exact leaves, full flow witnesses at 92 points/cells, 30 Python tests on 3.10-3.13 and six Node/Chrome tests. Exhaustive six-variable sensitivity, not scalable parametric flow.
+
 **A cut, with the whole proof.** Exact finite binary submodular energy minimization, every graph-reduction entry and flow/cut certificate, plus the full family of tied optima.
 
 [Live inspector](https://midya8.github.io/cutlab/) · [Method and sources](METHOD.md) · [Example input](examples/demo.json)

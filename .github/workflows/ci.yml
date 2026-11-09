@@ -22,6 +22,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: PYTHONPATH=. python tools/build_audits.py && git diff --exit-code -- docs/audits.json examples/demo.json
+      - run: PYTHONPATH=. python tools/build_audits.py && PYTHONPATH=. python tools/build_paths.py && git diff --exit-code -- docs/audits.json examples/demo.json docs/path-audits.json examples/path.json
       - run: npm test
       - run: bash tools/wheel_smoke.sh

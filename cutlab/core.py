@@ -70,7 +70,13 @@ def _out(x):
 
 
 def audit(raw):
-    spec = validate(raw); n = len(spec['unary']); N=n+2; s=n; t=n+1
+    return _audit_exact(validate(raw))
+
+
+def _audit_exact(spec):
+    # Internal: a validated affine path can derive larger exact rationals.
+    _q = Q
+    n = len(spec['unary']); N=n+2; s=n; t=n+1
     unary = [[_q(x) for x in row] for row in spec['unary']]
     pair_reductions=[]; violations=[]
     for k,p in enumerate(spec['pairs']):
@@ -82,7 +88,7 @@ def audit(raw):
     dense=[]
     for mask in range(1<<n):
         bits=[(mask>>i)&1 for i in range(n)]
-        dense.append({'mask':mask,'bits':bits,'energy':energy(spec,bits)})
+        dense.append({'mask':mask,'bits':bits,'energy':sum((Q(row[bits[i]]) for i,row in enumerate(spec['unary'])),Q(0))+sum((Q(p['values'][2*bits[p['i']]+bits[p['j']]]) for p in spec['pairs']),Q(0))})
     minimum=min(r['energy'] for r in dense)
     optimum=[r['mask'] for r in dense if r['energy']==minimum]
     naive=[0 if a<=b else 1 for a,b in unary]
@@ -96,7 +102,7 @@ def audit(raw):
         if chosen is None:break
         local_mask^=1<<chosen
     local={'start_mask':0,'mask':local_mask,'energy':dense[local_mask]['energy'],'gap':dense[local_mask]['energy']-minimum,'trace':local_trace}
-    reference={'minimum':minimum,'optimal_masks':optimum,'unary_only_bits':naive,'unary_only_energy':energy(spec,naive),'unary_only_gap':energy(spec,naive)-minimum,'single_flip':local}
+    reference={'minimum':minimum,'optimal_masks':optimum,'unary_only_bits':naive,'unary_only_energy':dense[sum(b<<i for i,b in enumerate(naive))]['energy'],'unary_only_gap':dense[sum(b<<i for i,b in enumerate(naive))]['energy']-minimum,'single_flip':local}
     if violations:
         return _out({'schema':'cutlab/1','input':spec,'status':'refused','violations':violations,'pair_reductions':pair_reductions,'reference':reference,'assignments':dense})
     offset=sum((row[0] for row in unary),Q(0)); linear=[b-a for a,b in unary]
