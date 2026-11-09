@@ -18,4 +18,9 @@ env -u PYTHONPATH "$tmp/env/bin/python" "$root/tools/verify_installed.py" "$root
 env -u PYTHONPATH "$tmp/env/bin/cutlab" "$root/examples/demo.json" --output "$tmp/console.json"
 env -u PYTHONPATH "$tmp/env/bin/python" -m cutlab "$root/examples/demo.json" --output "$tmp/module.json"
 cmp "$tmp/console.json" "$tmp/module.json"
-"$tmp/env/bin/python" -c 'import json,sys; r=json.load(open(sys.argv[1])); assert r["minimum"]=="3" and r["optimal_masks"]==[0,3]; print("Installed console/module CLIs, all 24 reports and four origins passed")' "$tmp/console.json"
+"$tmp/env/bin/python" -c 'import json,sys; r=json.load(open(sys.argv[1])); assert r["minimum"]=="3" and r["optimal_masks"]==[0,3]; print("Installed console/module CLIs, all 24 base reports and five origins passed")' "$tmp/console.json"
+
+env -u PYTHONPATH "$tmp/env/bin/cutlab" "$root/examples/path.json" --path --output "$tmp/path-console.json"
+env -u PYTHONPATH "$tmp/env/bin/python" -m cutlab "$root/examples/path.json" --path --output "$tmp/path-module.json"
+cmp "$tmp/path-console.json" "$tmp/path-module.json"
+"$tmp/env/bin/python" -c 'import json,sys; r=json.load(open(sys.argv[1])); assert r["knots"]==["-4","1/4","2","4"]; assert [x["optimal_masks"] for x in r["cells"]]==[[7],[0],[1]]; print("Installed affine path CLIs and all 18 path reports passed")' "$tmp/path-console.json"
