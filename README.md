@@ -1,23 +1,17 @@
 # CutLab
 
-[Exact affine unary response path](https://midya8.github.io/cutlab/path.html) · [Path method and limits](PATH.md)
+CutLab minimizes a supplied binary energy over at most six variables. It shows the graph reduction, the flow and cut that certify the minimum, and every tied optimum. Costs use exact rational arithmetic in Python and independent BigInt arithmetic in the browser.
 
-The response inspector retains every closed optimal region, singleton breakpoint tie and open-cell family. Mixed signed slopes can make a label leave and return: the default exact masks are 7 → 0 → 1 at breakpoints 1/4 and 2. 18 complete paths / 90,732 native-BigInt exact leaves, full flow witnesses at 92 points/cells, 30 Python tests on 3.10-3.13 and six Node/Chrome tests. Exhaustive six-variable sensitivity, not scalable parametric flow.
+[Flow/cut inspector](https://midya8.github.io/cutlab/) · [Affine unary response inspector](https://midya8.github.io/cutlab/path.html) · [Example input](examples/demo.json)
 
-**A cut, with the whole proof.** Exact finite binary submodular energy minimization, every graph-reduction entry and flow/cut certificate, plus the full family of tied optima.
+There are two workflows:
 
-[Live inspector](https://midya8.github.io/cutlab/) · [Method and sources](METHOD.md) · [Example input](examples/demo.json)
+- **Fixed costs:** inspect each pair-table decomposition, edge capacity and constant offset; follow every augmenting path, including backward cancellation; compare all assignments and the residual constraints on tied optima. See [METHOD.md](METHOD.md).
+- **Affine unary costs:** keep pair costs fixed and vary unary costs over a closed rational interval. Inspect every optimal region, open-cell family and singleton breakpoint tie. See [PATH.md](PATH.md).
 
-CutLab implements established graph cuts with dependency-free Python rational arithmetic and independent browser BigInt arithmetic. It is not a learned model, a new algorithm or a vision benchmark.
+Mixed signed slopes can make a label leave and return. The default response path has masks 7 → 0 → 1 at breakpoints 1/4 and 2. This is exhaustive six-variable sensitivity analysis, not scalable parametric flow.
 
-## What is inspectable
-
-- Every signed pair-table decomposition, nonnegative edge capacity and retained constant offset.
-- Every shortest augmenting path, bottleneck, reverse cancellation and complete after-flow.
-- Every tiny assignment, crossing edge, original energy, cut capacity and dual slack.
-- All residual SCCs, closure constraints, optimum ties and genuinely forced labels.
-- Complete strict single-flip trajectories and a labeled unary-only contrast.
-- Editable browser input, exact rational inference, current JSON export and explicit refusals.
+Both browser inspectors accept editable input, export the current JSON report and refuse unsupported inputs. The fixed-cost inspector also shows strict single-flip trajectories and a labeled unary-only contrast. CutLab implements established graph cuts; it is not a learned model, a new algorithm or a vision benchmark.
 
 ## Two choices can beat every single flip
 
@@ -50,9 +44,11 @@ assert r["reference"]["single_flip"]["gap"] == "2"
 
 ## Checks
 
-21 Python tests on 3.10-3.13: 250 independent dense energy oracles, 160 all-cut slack audits, every augmentation/conservation/capacity witness, independent reachability/SCC checks, complete optimum-family checks, 100 scaling/offset controls and 80 relabelings. Original controls remain visible, including local search failure and explicit refusal.
+The original fixed-cost workflow has 21 Python tests, retained in the current suite of 30. They cover 250 independent dense energy oracles, 160 all-cut slack audits, every augmentation/conservation/capacity witness, independent reachability/SCC checks, complete optimum-family checks, 100 scaling/offset controls and 80 relabelings. Original controls remain visible, including local search failure and explicit refusal.
 
-24 Python/independent BigInt reports match **24,624 exact leaves**. Actual Chrome checks **570 cut records, 56 flow states, 73 pair records, 180 residual records and 50 local states**, 87 terminal rows, 449 edge geometry/color/label records and 4,166 node colors. Three Node/Chrome tests also cover summaries/tables, JSON export, invalid/stale state and 320/390/1280 containment. Installed-wheel reproduction verifies all reports, both CLI routes and four module origins outside checkout. See [METHOD.md](METHOD.md) for exact scope and distinctions.
+24 Python/independent BigInt reports match 24,624 exact leaves. Actual Chrome checks 570 cut records, 56 flow states, 73 pair records, 180 residual records and 50 local states, 87 terminal rows, 449 edge geometry/color/label records and 4,166 node colors. Three original Node/Chrome tests also cover summaries/tables, JSON export, invalid/stale state and 320/390/1280 containment. Installed-wheel reproduction verifies all fixed-cost reports, both CLI routes and the four original module origins outside checkout; the path checks add a fifth module. See [METHOD.md](METHOD.md) for exact scope and distinctions.
+
+The response-path checks add 18 complete paths with 90,732 native/BigInt exact leaves and full flow witnesses at 92 points or cells. The complete suite has 30 Python tests and six Node/Chrome tests. See [PATH.md](PATH.md) for the path-specific checks and scope. The CI Python matrix covers 3.10-3.13.
 
 ## Limits
 
